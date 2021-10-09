@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# REF: https://willhaley.com/blog/generate-jwt-with-bash/
 #
 # JWT Encoder Bash Script
 #
