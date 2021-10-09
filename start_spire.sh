@@ -1,8 +1,7 @@
 #/bin/bash
 
 # This script aims to show sample interactions with SPIRE Server and Agent.
-# To use:
-# Start spire-server
+# To use run the script and firstly start the spire server, through spire-server management menu.
 
 start_spire_server () {
 # # Start the SPIRE Server as a background process
@@ -34,7 +33,8 @@ create_spiffeid() {
 
 
 oauth2spiffeid() {
-    echo "Enter the OAuth Token:"
+    # Receives a Google OAuth token and create a related SPIFFE-ID.
+    echo "Enter the Google OAuth Token:"
     read oauthtoken
     echo "Enter the selector:"
     read selector
