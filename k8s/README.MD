@@ -5,7 +5,7 @@ This scripts aims to start a k8s environment to run SPIRE (startk8s.sh) and impl
 - Docker and Docker-compose
 - Minikube
 - If running in a VM, its also necessary to install socat (apt install socat) and make port-forward to the desired pod: 
-    kubectl port-forward --address localhost,<host ip> pod/<frontend name> 3000:3000
+    kubectl port-forward --address localhost,host_ip pod/frontend_name 3000:3000
 
 # Details:
   
