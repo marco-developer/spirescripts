@@ -1,5 +1,5 @@
 # Introduction
-This scripts aims to start a k8s environment to run SPIRE (startk8s.sh) and implement the envoy-X509 example from spire-tutorials repo.
+These scripts aims to start a k8s environment to run SPIRE (startk8s.sh) and implement the envoy-X509 example from spire-tutorials repo.
 
 # Prereqs:
 - Docker and Docker-compose
