@@ -10,7 +10,8 @@ These scripts aims to start a k8s environment to run SPIRE (startk8s.sh) and imp
 # Details:
   
 - startk8s.sh: Start minikube and all SPIRE components.
-- create-registration-entries.sh: Interact with spire-server, creating the necessary SPIFFE-IDs to run the envoy-X509 example.  
+- create-registration-entries.sh: Interact with spire-server, creating the necessary SPIFFE-IDs to run the envoy-X509 example.
+- After the execution of _kubectl apply -k k8s/._ command and port-forward (if necessary), point to IP:3000 to connect to backend through frontend, using mTLS. The same can be done pointing to IP:3002, and in this case the connection will be stablished using frontend-2.
 - teardown.sh: Stop and delete everything.
   
 # Refs:  
