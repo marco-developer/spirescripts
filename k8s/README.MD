@@ -14,7 +14,7 @@ This scripts aims to start a k8s environment to run SPIRE (startk8s.sh) and impl
 - teardown.sh: Stop and delete everything.
   
 # Refs:  
-  https://spiffe.io/docs/latest/try/getting-started-k8s/
-  https://github.com/spiffe/spire-tutorials/blob/master/.travis.yml
-  https://github.com/spiffe/spire-tutorials/tree/master/k8s/envoy-x509
+  https://spiffe.io/docs/latest/try/getting-started-k8s/  
+  https://github.com/spiffe/spire-tutorials/blob/master/.travis.yml  
+  https://github.com/spiffe/spire-tutorials/tree/master/k8s/envoy-x509  
   
