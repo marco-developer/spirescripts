@@ -1,9 +1,8 @@
 #! /usr/bin/bash
 
-# get_id_token.sh
-# A shell script which demonstrates how to get an OpenID Connect access_token from from Okta using the OAuth 2.0 "Implicit Flow"
+# A shell script which demonstrates how to get an OpenID Connect id_token from from Okta using the OAuth 2.0 "Implicit Flow"
 # Original Author: Joel Franusic <joel.franusic@okta.com>
-# Modified by: Marco Marques <mmarques@larc.usp.br>
+# Modified By: Marco Marques <mmarques@larc.usp.br>
 # 
 # Copyright © 2016, Okta, Inc.
 # 
@@ -26,12 +25,18 @@ jq="jq"
 # credentials.txt format: username,password
 credentials=$(cat credentials.txt)
 arrcredentials=(${credentials//,/ })
-
-base_url=""
-client_id=""
-origin=""
 username="${arrcredentials[0]}"
 password="${arrcredentials[1]}"
+
+# Okta Domain
+base_url=""
+
+# Client ID
+client_id=""
+
+# Okta Sign-in redirect URIs. Ex: http://localhost:8080/callback
+origin=""
+
 verbose=0
 
 while getopts ":b:c:o:u:p:v" OPTION
@@ -45,12 +50,6 @@ do
     ;;
     o)
         origin="$OPTARG"
-    ;;
-    u)
-        username="$OPTARG"
-    ;;
-    p)
-        password="$OPTARG"
     ;;
     v)
         verbose=0
@@ -101,6 +100,16 @@ if [ $verbose -eq 1 ]; then
     echo "Here is the return value: "
     echo $rv
 fi
-# Altered from ID_token to access_token
+
 access_token=$(echo "$rv" | egrep -o '^< location: .*access_token=[[:alnum:]_\.\-]*' | cut -d \= -f 2)
-echo $access_token > oktatoken.txt
+
+echo "1 to save token in file or 2 to generate JWT:"
+read fileorjwt
+if [ $fileorjwt -eq 1 ]; then
+    # Save access token in file
+    echo $access_token > oktatoken.txt
+else if [ $fileorjwt -eq 2 ]; then
+    # OR.... advance to the next step: oauth2jwt.sh
+    ./oauth2jwt.sh $access_token
+    fi
+fi
