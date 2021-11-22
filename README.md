@@ -1,13 +1,22 @@
 # Intro
-Some shell scripts to exemplify interactions with a local spire-server implementation.
-Copy server_menu.sh to spire dir, _chmod +x server_menu.sh_ and execute it.
+Scripts related to HPE/USP SPIRE DA-SVID project.
 
 # Prereqs
-- Docker, docker-compose
-- spire repo
+- Docker, docker-compose  
+- spire repo  
 
 # Details
-- preinstall.sh - Executes the basic installation steps .
-- server_menu.sh - A simple command line interface menu to SPIRE functions.
-- jwt_gen.sh - shellscript that generates a JWT based on configurable parameters.
-- google_oauth.sh - Curl commands to interact with Google OAuth.
+
+Basic scripts:  
+- preinstall.sh: Executes the basic installation steps.  
+- server_menu.sh: A simple command line interface menu to a local implementation of SPIRE Server.  
+  Copy server_menu.sh to spire dir, _chmod +x server_menu.sh_ and execute it.  
+
+Step 0:
+- google_oauth.sh: Tool to interact and retrieve a Google OAuth Token.  
+- okta_access_token.sh: Tool to interact and retrieve an OKTA OAuth Token.  
+
+Step 2:
+- oauth2jwt.sh: Receives an Okta oauth JWT, introspects it and then save results in file or generate a new JWT based on selected claims.  
+- jwt_gen.sh: shellscript that generates a JWT based on oauth claims.  
+
