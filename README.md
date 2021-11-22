@@ -7,6 +7,8 @@ Scripts related to HPE/USP SPIRE DA-SVID project.
 
 # Details
 
+k8s folder: Scripts to start SPIRE in minikube and run Envoy/X509 SPIRE sample.  
+
 Basic scripts:  
 - preinstall.sh: Executes the basic installation steps.  
 - server_menu.sh: A simple command line interface menu to a local implementation of SPIRE Server.  
