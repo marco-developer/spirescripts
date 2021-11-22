@@ -4,8 +4,9 @@ These scripts aims to introspect an Okta oauth access token (oauth2jwt.sh) and g
 # Details
 - oauth2jwt.sh: Needs to inform clientID, clientSecret, Okta Domain, and the token to be introspected  
 - jwtgen.sh: Generate a JWT based on the informed claims.  
+
 usage:  
-main <issuer> <sub> <dpr>  
+main \<issuer\> \<sub\> \<dpr\>  
 
 Header fields.  
 ref:  
