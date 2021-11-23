@@ -48,7 +48,7 @@ hmacsha256_sign()
     # "aat": JWT generation timestamp,
     # "sub": "spiffe://example.org/100416421704833135369",
     # "dpr": "https://www.googleapis.com/auth/userinfo.email openid"
-
+    
     header='{
         "typ": "JWT",
         "alg": "HS256",

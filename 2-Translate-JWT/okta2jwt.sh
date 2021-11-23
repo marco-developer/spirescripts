@@ -1,7 +1,7 @@
 #!/bin/bash
 # Receives an Okta oauth JWT and introspect it
 # usage:
-# ./oauth2jwt.sh <token>
+# ./okta2jwt.sh <OAuth token>
 
 oauthtoken=$1
 
@@ -24,7 +24,6 @@ read scope < <(echo $tokeninfo | jq -r '.scope')
 
 # with tokeninfo we can proceed with SVID creation using its claims, like:
     
-    # read userid < <(echo $tokeninfo | jq -r '.user_id')
     # read ttl < <(echo $tokeninfo | jq -r '.expires_in')
 
     # spire-server entry create \

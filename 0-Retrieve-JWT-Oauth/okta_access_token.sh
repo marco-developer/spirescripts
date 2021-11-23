@@ -1,6 +1,7 @@
 #! /usr/bin/bash
 
-# A shell script which demonstrates how to get an OpenID Connect id_token from from Okta using the OAuth 2.0 "Implicit Flow"
+# A shell script which originally demonstrates how to get an OpenID Connect id_token from from Okta using the OAuth 2.0 "Implicit Flow"
+# Modified to retrieve an OpenID Connect access_token
 # Original Author: Joel Franusic <joel.franusic@okta.com>
 # Modified By: Marco Marques <mmarques@larc.usp.br>
 # 
@@ -17,6 +18,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# Usage: sudo ./okta_access_token.sh -b base_url -c client_id -o origin
+# Requires a credentials.txt file containing Okta username:password :-/
 
 curl="curl"
 jq="jq"
