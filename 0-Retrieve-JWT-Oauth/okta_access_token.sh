@@ -1,6 +1,6 @@
-#! /usr/bin/bash
+#!/bin/bash
 
-# A shell script which originally demonstrates how to get an OpenID Connect id_token from from Okta using the OAuth 2.0 "Implicit Flow"
+# A shell script which originally demonstrates how to get an OpenID Connect id_token from from Okta using the OAuth 2.0 Implicit Flow
 # Modified to retrieve an OpenID Connect access_token
 # Original Author: Joel Franusic <joel.franusic@okta.com>
 # Modified By: Marco Marques <mmarques@larc.usp.br>
@@ -39,7 +39,7 @@ base_url=""
 client_id=""
 
 # Okta Sign-in redirect URIs. Ex: http://localhost:8080/callback
-origin=""
+origin="http://localhost:8080/callback"
 
 verbose=0
 
@@ -114,6 +114,6 @@ if [ $fileorjwt -eq 1 ]; then
     echo $access_token > oktatoken.txt
 else if [ $fileorjwt -eq 2 ]; then
     # OR.... advance to the next step: oauth2jwt.sh
-    ./oauth2jwt.sh $access_token
+    ../2-Translate-JWT/okta2jwt.sh $access_token
     fi
 fi

@@ -23,11 +23,11 @@ hmacsha256_sign()
     printf '%s' "${input}" | openssl dgst -binary -sha256 -hmac "${secret}"
 }
 
-# main() 
+# jwt_gen() 
 # {
 
     # usage:
-    #   main <issuer> <sub> <dpr>
+    #   jwt_gen <issuer> <sub> <dpr>
     #   still needs to include exp
 
     secret='hardsecret'
@@ -48,7 +48,7 @@ hmacsha256_sign()
     # "aat": JWT generation timestamp,
     # "sub": "spiffe://example.org/100416421704833135369",
     # "dpr": "https://www.googleapis.com/auth/userinfo.email openid"
-    
+
     header='{
         "typ": "JWT",
         "alg": "HS256",

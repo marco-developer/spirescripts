@@ -1,20 +1,27 @@
+#!/bin/bash
+
+# Simple menu to SPIRE server main functions.
+# Requirements: make, SPIRE repository in /spire. This script also needs to be at SPIRE directory.
+# Usage:  ./server_menu.sh
+
+
 start_spire_server () {
     # Start the SPIRE Server as a background process
     echo "Starting spire-server..."
     sleep 1
-    spire-server run &
+     spire-server run -config /spire/conf/server/server.conf & 
     sleep 2
 }
 
 stop_spire() {
-    kill -9 $(ps -ef | grep "spire-agent" | grep -v grep | awk '{print $2}')
-    kill -9 $(ps -ef | grep "spire-server" | grep -v grep | awk '{print $2}')
+     kill -9 $(ps -ef | grep "spire-agent" | grep -v grep | awk '{print $2}')
+     kill -9 $(ps -ef | grep "spire-server" | grep -v grep | awk '{print $2}')
 }
 
 reset_spire() {
-    kill -9 $(ps -ef | grep "spire-agent" | grep -v grep | awk '{print $2}')
-    kill -9 $(ps -ef | grep "spire-server" | grep -v grep | awk '{print $2}')
-    rm -rf /spire/.data
+     kill -9 $(ps -ef | grep "spire-agent" | grep -v grep | awk '{print $2}')
+     kill -9 $(ps -ef | grep "spire-server" | grep -v grep | awk '{print $2}')
+     rm -rf /spire/.data
 }
 
 create_spiffeid() {
@@ -23,7 +30,7 @@ create_spiffeid() {
     echo "Enter the selector:"
     read selector
 
-    spire-server entry create \
+     spire-server entry create \
         -parentID spiffe://example.org/host \
         -spiffeID spiffe://example.org/$spiffeid \
         -selector $selector
@@ -45,7 +52,7 @@ oauth2spiffeid() {
     read userid < <(echo $tokeninfo | jq -r '.user_id')
     read ttl < <(echo $tokeninfo | jq -r '.expires_in')
 
-    spire-server entry create \
+     spire-server entry create \
         -parentID spiffe://example.org/host \
         -ttl $ttl \
         -spiffeID spiffe://example.org/$userid \
@@ -56,16 +63,16 @@ delete_spiffeid() {
     echo "Enter the Entry ID:"
     read entryid
 
-    spire-server entry delete \
+     spire-server entry delete \
         -entryID $entryid
 }
 
 list_spiffeids() {
-    spire-server entry show
+     spire-server entry show
 }
 
 count_spiffeids() {
-    spire-server entry count
+     spire-server entry count
 }
 
 update_spiffeid() {
@@ -84,7 +91,7 @@ update_spiffeid() {
 	echo "Enter the new SPIFFE-ID:"
 	read spiffeid
 	
-	./spire-server entry update -entryID $entryid -selector $selector -parentID $parentid -spiffeID $spiffeid
+	 spire-server entry update -entryID $entryid -selector $selector -parentID $parentid -spiffeID $spiffeid
 	
  }
 
@@ -97,11 +104,11 @@ update_spiffeid() {
 # }
 
 list_agents() {
-    spire-server agent list
+     spire-server agent list
 }
 
 count_agents() {
-    spire-server agent count
+     spire-server agent count
 }
 
 generate_jointoken () {
@@ -112,7 +119,7 @@ read spiffeid
 
 echo "Generating token..."
 sleep 1
-tmp=$(spire-server token generate -spiffeID spiffe://example.org/$spiffeid)
+tmp=$( spire-server token generate -spiffeID spiffe://example.org/$spiffeid)
 echo $tmp
 token=${tmp:7}
 # echo $token >> tokens.lst
@@ -125,27 +132,27 @@ start_spire_agent () {
     # Start the SPIRE Agent as a background process using the token passed by parameter.
     echo "Starting spire-agent..."
     sleep 1
-    spire-agent run -joinToken $token &
+     spire-agent run -joinToken $token -config /spire/conf/agent/agent.conf &
     sleep 1
     token=''
 }
 
 check_spire_server () {
-    spire-server healthcheck
+     spire-server healthcheck
 }
 
 ban_agent() {
     echo "Enter the SPIFFE-ID:"
     read agentid
 
-    spire-server agent ban -spiffeID $agentid
+     spire-server agent ban -spiffeID $agentid
 }
 
 evict_agent() {
     echo "Enter the SPIFFE-ID:"
     read spiffeid
 
-    spire-server agent evict -spiffeID $spiffeid
+     spire-server agent evict -spiffeID $spiffeid
 }
 
 SPIFFEID2JWT() {
