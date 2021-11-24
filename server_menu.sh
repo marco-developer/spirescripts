@@ -166,6 +166,11 @@ SPIFFEID2JWT() {
 }
 
 menu_server() {
+    # if [$PWD -nq "/spire"] then
+    #     echo "Script must be in SPIRE path (/SPIRE)"
+    #     exit
+    # fi
+
     status=$(check_spire_server)
     agents=$(count_agents)
     entries=$(count_spiffeids)

@@ -7,15 +7,21 @@
 oauthtoken=$1
 
 # Okta client configuration
-clientid=''
-clientsecret=''
-oktadomain=''
+# clientid=''
+# clientsecret=''
+# oktadomain=''
+oktaconf=$(cat ../2-Translate-JWT/okta.conf)
+arrcredentials=(${oktaconf//,/ })
+oktadomain="${arrcredentials[0]}"
+clientid="${arrcredentials[1]}"
+clientsecret="${arrcredentials[2]}"
 
 tokeninfo=$(curl --request POST --user $clientid:$clientsecret \
 https://$oktadomain/oauth2/v1/introspect \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode token=$oauthtoken)
 
+# Example of token introspection results
 # echo $tokeninfo
 # {
 #     "active":true,
@@ -34,6 +40,13 @@ https://$oktadomain/oauth2/v1/introspect \
 
 read userid < <(echo $tokeninfo | jq -r '.uid')
 read scope < <(echo $tokeninfo | jq -r '.scope')
+read exp < <(echo $tokeninfo | jq -r '.exp')
+
+
+echo "Userid: $userid"
+echo "scope: $scope"
+echo "exp: $exp"
+
 
 # with tokeninfo we can proceed with SVID creation using its claims, like:
     
@@ -46,5 +59,5 @@ read scope < <(echo $tokeninfo | jq -r '.scope')
     #     -selector $selector
 
 # Uses jwt_gen script to generate the JWT. 
-# jwt_gen.sh <issuer> <sub> <dpr>
-../2-Translate-JWT/jwt_gen.sh spiffe://example.org/host spiffe://example.org/$userid $scope 
+# jwt_gen.sh <issuer> <sub> <scp> <exp>
+../2-Translate-JWT/jwt_gen.sh spiffe://example.org/host spiffe://example.org/mob_backend spiffe://example.org/$userid "$scope" $exp
