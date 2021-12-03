@@ -11,10 +11,9 @@ var hmacSampleSecret []byte
 
 func main(){
 
-    issue_time := time.Now()
-    added := issue_time.Add(time.Second * 1)
+    issue_time := time.Now().Round(0)
+    added := issue_time.Add(time.Second).Round(0)
     exp_time := added.String()
-
     
     iss := flag.String("iss", "", "issuer(iss) = SPIFFE ID of the workload that generated the DA-SVID (Asserting workload")
     aat := flag.String("aat", "", "asserted at(aat) = time at which the assertion made in the DA-SVID was verified by the asserting workload")
