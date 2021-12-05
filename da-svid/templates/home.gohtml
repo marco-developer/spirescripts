@@ -1,0 +1,35 @@
+{{template "header" .}}
+
+{{if .IsAuthenticated}}
+<div id="content" class="ui text container">
+  <h2>Step 0: Retrieve an Oauth access token from Okta</h2>
+
+  <div>
+  <script>
+  function copy() {
+    let textarea = document.getElementById("textarea");
+    textarea.select();
+    document.execCommand("copy");
+  }
+  </script>
+
+    <p>Hello, <span>{{.Profile.name}}</span>!</p>
+    <p>Your access token is:</p>
+       
+    <p><textarea id="textarea" rows="11" cols="100">{{.AccessToken}}</textarea></p>
+    <p><br></p>
+    <p><button onclick="copy()">Copy Token</button><button onclick="location.href='http://192.168.0.5:8080/validate'">Next: Validate Token</button></p>
+    <p>You have successfully authenticated against your Okta org, and have been redirected back to this application.</p>
+    <p>Visit the <a href="profile">My Profile</a> page in this application to view the information
+      retrieved with your OAuth Access Token.</p>
+  </div>
+{{else}}
+  <div>
+    <p>This application is a proof of concept of SPIFFE/SPIRE DA-SVID project. It allows you to navigate through the solution steps presented in the Figure.</p>
+    <p><img src="img/timpv0.jpg" alt="Target Implementation"></p>
+ {{end}}
+
+
+
+</div>
+{{template "footer"}}

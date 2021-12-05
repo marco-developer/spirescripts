@@ -64,7 +64,7 @@ do
         echo "Example:"
         echo "$0 -b 'https://example.okta.com' -c aBCdEf0GhiJkLMno1pq2 -o 'https://example.net/your_application'"
         echo ""
-        echo "Also requires credentials.txt file containing username:password"
+        echo "Also requires credentials.txt file containing username,password"
         exit 1
     ;;
     esac

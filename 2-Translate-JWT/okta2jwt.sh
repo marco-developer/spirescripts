@@ -41,14 +41,14 @@ read userid < <(echo $tokeninfo | jq -r '.uid')
 read scope < <(echo $tokeninfo | jq -r '.scope')
 read exp < <(echo $tokeninfo | jq -r '.exp')
 
-# # Debug:
-# echo "Userid: $userid"
-# echo "scope: $scope"
-# echo "exp: $exp"
+# Debug:
+echo "Userid: $userid"
+echo "scope: $scope"
+echo "exp: $exp"
 
 # Uses jwt_gen script to generate the DA-SVID (JWT). 
 # jwt_gen.sh <issuer> <sub> <scp> <exp>
-../2-Translate-JWT/jwt_gen.sh spiffe://example.org/host spiffe://example.org/mob_backend spiffe://example.org/$userid "$scope" $exp
+# ../2-Translate-JWT/jwt_gen.sh spiffe://example.org/host spiffe://example.org/mob_backend spiffe://example.org/$userid "$scope" $exp
 
 # with tokeninfo we can proceed with SVID creation using its claims, like:
     
