@@ -7,7 +7,20 @@ import (
     "github.com/golang-jwt/jwt"
 )
 
-// TODO: implement function to be called by asserting workload
+// TODO: implement function to be called by asserting 
+// Still needs to know who should sign it (could be the PrivateK from user correspondent SVID or from Asserting Workload)
+// NOTE: this example can be a solution to get the private key to sign da-svid. 
+// rsaPrivate, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(private))
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	token.Raw, err = token.SignedString(rsaPrivate)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+
 var hmacSampleSecret []byte
 
 func main(){

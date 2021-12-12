@@ -14,10 +14,15 @@
   }
   </script>
 
-    <p>Welcome back, <span>{{.Profile.name}}</span>!</p>
-    <p>The validation result of your access token is:</p>
-       
-    <p><textarea id="textarea" rows="8" cols="100">{{.ValidationResult}}</textarea></p>
+    <p>The expiration time of your access token is:</p>
+    <p><textarea id="expvalidation" rows="1" cols="60">{{.ExpValidation}}</textarea></p>
+
+    <p>The public key to perform signature validation is:</p>
+    <p><textarea id="Pkey" rows="6" cols="100">{{.PublicKey}}</textarea></p>
+
+    <p>The signature validation result of your access token is:</p>
+    <p><textarea id="sigvalidation" rows="1" cols="60">{{.SigValidation}}</textarea></p>
+
     <p><br></p>
     <p><button onclick="copy()">Copy Token</button><button onclick="location.href='http://192.168.0.5:8080/decode'">Next: Decode Token</button></p>
     <p>You have successfully authenticated against your Okta org, and have been redirected back to this application.</p>

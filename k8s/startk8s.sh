@@ -5,14 +5,13 @@
 # Prereqs:
 # - Docker, Docker-compose, minikube, kubectl
 
-# Start minikube using extra-configs demanded by SPIRE. I had to add --driver=none otherwise minikube startup fails due to some proxy error.
+echo "Start minikube using extra-configs demanded by SPIRE. I had to add --driver=none otherwise minikube startup fails due to some proxy error."
 minikube start \
     --extra-config=apiserver.service-account-signing-key-file=/var/lib/minikube/certs/sa.key \
     --extra-config=apiserver.service-account-key-file=/var/lib/minikube/certs/sa.pub \
     --extra-config=apiserver.service-account-issuer=api \
     --extra-config=apiserver.service-account-api-audiences=api,spire-server \
     --extra-config=apiserver.authorization-mode=Node,RBAC \
-    --driver=none
 
 sleep 3
 
@@ -21,19 +20,19 @@ cd /spire-tutorials/k8s/quickstart
 
 ##################
 
-# Create the namespace:
+echo "Create the namespace:"
 kubectl apply -f spire-namespace.yaml
 sleep 3
 kubectl get namespaces
 
-# Create the server’s service account, configmap and associated role bindings as follows:
+echo "Create the server’s service account, configmap and associated role bindings "
 kubectl apply \
     -f server-account.yaml \
     -f spire-bundle-configmap.yaml \
     -f server-cluster-role.yaml
 sleep 3
 
-# Deploy the server configmap and statefulset by applying the following files via minikube kubectl --:
+echo "Deploy the server configmap and statefulset by applying the following files:"
 kubectl apply \
     -f server-configmap.yaml \
     -f server-statefulset.yaml \
@@ -59,6 +58,7 @@ kubectl apply \
 # Longer sleep, giving time to initialization
 sleep 30
 
-# Check if everything is running
+echo "Check if everything is running"
 kubectl get daemonset --namespace spire
+echo "kubectl get pods --namespace spire"
 kubectl get pods --namespace spire

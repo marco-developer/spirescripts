@@ -13,8 +13,22 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	
+	// To sig. validation 
+	"crypto"
+	"crypto/rsa"
+	_ "crypto/sha256"
+	"encoding/binary"
+	"math/big"
+	
+	// to retrieve JWT claims
+	// NOTE: look for another JWT lib
+	"github.com/dgrijalva/jwt-go"
+	"time"
+	
 
 	"github.com/gorilla/sessions"
+	// Okta
 	verifier "github.com/okta/okta-jwt-verifier-golang"
 	oktaUtils "github.com/okta/samples-golang/okta-hosted-login/utils"
 )
@@ -58,6 +72,20 @@ func main() {
 		log.Printf("the HTTP server failed to start: %s", err)
 		os.Exit(1)
 	}
+}
+
+type JWKS struct {
+	Keys []JWK
+}
+
+type JWK struct {
+	Alg string
+	Kty string
+	X5c []string
+	N   string
+	E   string
+	Kid string
+	X5t string
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -138,6 +166,7 @@ func AuthCodeCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	if verificationError == nil {
 		session.Values["id_token"] = exchange.IdToken
 		session.Values["access_token"] = exchange.AccessToken
+		
 
 		session.Save(r, w)
 	}
@@ -158,34 +187,87 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "profile.gohtml", data)
 }
 
+
 func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 
+	// Define customdata to be passed 
 	type customData struct {
 		Profile         map[string]string
 		IsAuthenticated bool
-		// Added access token in the customdata
+		// Added filds in the customdata
 		AccessToken     string
-		ValidationResult *verifier.Jwt
+		PublicKey		string
+		SigValidation 	string
+		ExpValidation 	string
 	}
 	
+	var sigresult string
+	var expresult string
+
+	// Load session
 	session, err := sessionStore.Get(r, "okta-hosted-login-session-store")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
+	// Convert access_token to string
 	strAT := fmt.Sprintf("%v", session.Values["access_token"])
-	result, err := verifyAccessToken(strAT)
+
+	// Parse access token without validating signature
+    token, _, err := new(jwt.Parser).ParseUnverified(strAT, jwt.MapClaims{})
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+	
+	// Load claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+        
+		// Verify if token is still valid
+		tm := time.Unix(int64(claims["exp"].(float64)), 0)
+		remaining := tm.Sub(time.Now())
+		if remaining > 0 {
+			expresult = fmt.Sprintf("Token valid for more %v", remaining) 
+		} else {
+			expresult = fmt.Sprintf("Token expired!")
+		}
+    } else {
+        fmt.Println(err)
+    }
+
+    // Open file containing the keys obtained from /keys endpoint
+	// NOTE: Needs to implement a key cache and key retrieve processes.
+	jwksFile, err := os.Open("./jwks.json")
+	if err != nil {
+		fmt.Fprintln(w,"Error in reading jwks")
+		return
+	}
+
+	// Decode file and retrieve Public key from Okta application
+	dec := json.NewDecoder(jwksFile)
+	var jwks JWKS
+	
+	if err := dec.Decode(&jwks); err != nil {
+		fmt.Fprintln(w,"Unable to read key %s", err)
+		return
+	}
+
+	// Verify token signature using extracted Public key
+	err = verifySignature(strAT, jwks.Keys[0])
+	if err != nil {
+		sigresult = fmt.Sprintf("Failed signature verification: %v", err)
+	} else {
+		sigresult = "Signature successfuly validated!"
+	}
 	
 	data := customData{
 		Profile:         getProfileData(r),
 		IsAuthenticated: isAuthenticated(r),
-		// Pass access token as part of data
+		// Token validation info
 		AccessToken:	 strAT,
-		ValidationResult: result,
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		SigValidation:	 sigresult,
+		ExpValidation: 	 expresult,
+		PublicKey: 		 fmt.Sprintf("%v", jwks.Keys[0]),
 	}
 	
 	tpl.ExecuteTemplate(w, "validate.gohtml", data)
@@ -195,10 +277,10 @@ func ValidateHandler(w http.ResponseWriter, r *http.Request) {
 func DecodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	type customData struct {
-		Profile         map[string]string
-		IsAuthenticated bool
+		Profile         	map[string]string
+		IsAuthenticated 	bool
 		// Added access token in the customdata
-		AccessToken     string
+		AccessToken     	string
 		IntrospectionResult map[string]interface{}
 	}
 	
@@ -211,10 +293,10 @@ func DecodeHandler(w http.ResponseWriter, r *http.Request) {
 	result := instrospectAccessToken(strAT)
 	
 	data := customData{
-		Profile:         getProfileData(r),
-		IsAuthenticated: isAuthenticated(r),
+		Profile:         	 getProfileData(r),
+		IsAuthenticated: 	 isAuthenticated(r),
 		// Pass access token as part of data
-		AccessToken:	 strAT,
+		AccessToken:	 	 strAT,
 		IntrospectionResult: result,
 	}
 
@@ -325,28 +407,59 @@ func verifyToken(t string) (*verifier.Jwt, error) {
 	return nil, fmt.Errorf("token could not be verified: %s", "")
 }
 
-func verifyAccessToken(t string) (*verifier.Jwt, error) {
-// verificar se todos os tokens OKTA sao opacos. Precisamos validar assinatura (JWS) localmente e validade do token (exp)
-	tv := map[string]string{}
-	tv["aud"] = "api://default"
-	tv["cid"] = os.Getenv("CLIENT_ID")
-
-	jv := verifier.JwtVerifier{
-		Issuer:           os.Getenv("ISSUER"),
-		ClaimsToValidate: tv,
-	}
-
-	result, err := jv.New().VerifyAccessToken(t)
+func verifySignature(jwtToken string, key JWK) error {
+	parts := strings.Split(jwtToken, ".")
+	message := []byte(strings.Join(parts[0:2], "."))
+	signature, err := base64.RawURLEncoding.DecodeString(parts[2])
 	if err != nil {
-		return nil, fmt.Errorf("%s", err)
+		return err
 	}
+	n, _ := base64.RawURLEncoding.DecodeString(key.N)
+	e, _ := base64.RawURLEncoding.DecodeString(key.E)
+	z := new(big.Int)
+	z.SetBytes(n)
+	//decoding key.E returns a three byte slice, https://golang.org/pkg/encoding/binary/#Read and other conversions fail
+	//since they are expecting to read as many bytes as the size of int being returned (4 bytes for uint32 for example)
+	var buffer bytes.Buffer
+	buffer.WriteByte(0)
+	buffer.Write(e)
+	exponent := binary.BigEndian.Uint32(buffer.Bytes())
+	publicKey := &rsa.PublicKey{N: z, E: int(exponent)}
 
-	if result != nil {
-		return result, nil
-	}
+	// Only small messages can be signed directly; thus the hash of a
+	// message, rather than the message itself, is signed.
+	hasher := crypto.SHA256.New()
+	hasher.Write(message)
 
-	return nil, fmt.Errorf("token could not be verified: %s", "")
+	err = rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hasher.Sum(nil), signature)
+	return err
 }
+
+// func verifyAccessToken(t string) (*verifier.Jwt, error) {
+// // verificar se todos os tokens OKTA sao opacos. Precisamos validar assinatura (JWS) localmente e validade do token (exp)
+// // NOTE: Esta função está fora de uso. Precisa revisar e provavelmente tirar parte do código da validatehandler e trazer para cá
+	
+// 	// Define claims to be validated
+// 	tv := map[string]string{}
+// 	tv["aud"] = "api://default"
+// 	tv["cid"] = os.Getenv("CLIENT_ID")
+
+// 	jv := verifier.JwtVerifier{
+// 		Issuer:           os.Getenv("ISSUER"),
+// 		ClaimsToValidate: tv,
+// 	}
+
+// 	result, err := jv.New().VerifyAccessToken(t)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("%s", err)
+// 	}
+
+// 	if result != nil {
+// 		return result, nil
+// 	}
+
+// 	return nil, fmt.Errorf("token could not be verified: %s", "")
+// }
 
 func instrospectAccessToken(t string) map[string]interface{}  {
 
