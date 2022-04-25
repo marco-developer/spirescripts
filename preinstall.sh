@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 cd /
 git clone https://github.com/spiffe/spire.git
 cd /spire
